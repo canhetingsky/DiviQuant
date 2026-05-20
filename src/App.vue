@@ -1,4 +1,7 @@
 <script setup>
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 </script>
 
 <template>
@@ -12,8 +15,43 @@
             </div>
             <h1 class="text-xl font-display font-semibold text-slate-800">DiviQuant</h1>
           </router-link>
-          <nav class="flex items-center gap-4">
-            <span class="text-sm text-slate-500 hidden sm:block">指数股息率看板</span>
+          <nav class="flex items-center gap-1 sm:gap-4">
+            <router-link 
+              to="/" 
+              :class="[
+                'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                route.path === '/' 
+                  ? 'bg-slate-100 text-slate-800' 
+                  : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
+              ]"
+            >
+              <span class="hidden sm:inline">指数看板</span>
+              <span class="sm:hidden">指数</span>
+            </router-link>
+            <router-link 
+              to="/stocks" 
+              :class="[
+                'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                route.path === '/stocks' 
+                  ? 'bg-slate-100 text-slate-800' 
+                  : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
+              ]"
+            >
+              <span class="hidden sm:inline">分红排行</span>
+              <span class="sm:hidden">分红</span>
+            </router-link>
+            <router-link 
+              to="/yield" 
+              :class="[
+                'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                route.path === '/yield' 
+                  ? 'bg-slate-100 text-slate-800' 
+                  : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
+              ]"
+            >
+              <span class="hidden sm:inline">股息率</span>
+              <span class="sm:hidden">股息率</span>
+            </router-link>
           </nav>
         </div>
       </div>
