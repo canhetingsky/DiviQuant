@@ -1,0 +1,61 @@
+name: Update Dividend Data
+
+on:
+  schedule:
+    - cron: "0 7 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  generate-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: cloud-functions/scripts/output/cache
+          key: dividend-cache-${{ github.run_date }}
+          restore-keys: |
+            dividend-cache-
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r cloud-functions/scripts/requirements.txt
+
+      - name: Generate dividend data
+        id: generate
+        continue-on-error: true
+        run: |
+          cd cloud-functions/scripts
+          python dividend_data_generator.py
+          echo "data-generated=true" >> $GITHUB_OUTPUT
+        env:
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
+
+      - name: Upload data to S3
+        run: |
+          cd cloud-functions/scripts
+          python s3_uploader.py
+        env:
+          S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+          S3_ENDPOINT_URL: ${{ secrets.S3_ENDPOINT_URL }}
+          S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+          S3_UPLOAD_PREFIX: ${{ secrets.S3_UPLOAD_PREFIX }}
+
+      - name: Save cache
+        uses: actions/cache/save@v4
+        with:
+          path: cloud-functions/scripts/output/cache
+          key: dividend-cache-${{ github.run_date }}
