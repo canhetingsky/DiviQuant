@@ -28,25 +28,29 @@
 
 在仓库设置 → Secrets and variables → Actions 中添加以下 secrets：
 
-| Secret 名称        | 必填 | 说明                        |
-| ------------------ | ---- | --------------------------- |
-| `S3_ACCESS_KEY`    | ✅    | S3 访问密钥                 |
-| `S3_SECRET_KEY`    | ✅    | S3 秘密密钥                 |
-| `S3_ENDPOINT_URL`  | ✅    | S3 端点地址                 |
-| `S3_BUCKET_NAME`   | ✅    | 存储桶名称                  |
-| `S3_UPLOAD_PREFIX` | ❌    | 上传前缀，默认 `DiviQuant/` |
-| `HTTP_PROXY`       | ❌    | HTTP 代理（如果需要）       |
-| `HTTPS_PROXY`      | ❌    | HTTPS 代理（如果需要）      |
+| Secret 名称        | 必填 | 默认值                   | 说明                   |
+| ------------------ | ---- | ------------------------ | ---------------------- |
+| `S3_ACCESS_KEY`    | ✅    | -                        | S3 访问密钥            |
+| `S3_SECRET_KEY`    | ✅    | -                        | S3 秘密密钥            |
+| `S3_ENDPOINT_URL`  | ❌    | `https://s3.bitiful.net` | S3 端点地址            |
+| `S3_BUCKET_NAME`   | ❌    | `development`            | 存储桶名称             |
+| `S3_UPLOAD_PREFIX` | ❌    | `DiviQuant/`             | 上传前缀               |
+| `HTTP_PROXY`       | ❌    | -                        | HTTP 代理（如果需要）  |
+| `HTTPS_PROXY`      | ❌    | -                        | HTTPS 代理（如果需要） |
+
+**最小配置**：只需要 `S3_ACCESS_KEY` 和 `S3_SECRET_KEY`，其他使用默认值。
 
 ### 配置示例
 
 ```bash
-# S3 配置
+# 必填配置（最小配置）
 S3_ACCESS_KEY=ScKazMsU5qLaxQ9E1qRWeuLf
 S3_SECRET_KEY=xbIQYDcP871h9wLHAEO8xy0Uqs25ozB
-S3_ENDPOINT_URL=https://s3.bitiful.net
-S3_BUCKET_NAME=development
-S3_UPLOAD_PREFIX=DiviQuant/
+
+# 可选配置（如果需要自定义）
+# S3_ENDPOINT_URL=https://s3.bitiful.net
+# S3_BUCKET_NAME=development
+# S3_UPLOAD_PREFIX=DiviQuant/
 
 # 代理配置（可选）
 # HTTP_PROXY=http://127.0.0.1:7890

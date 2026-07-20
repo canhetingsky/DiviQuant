@@ -9,6 +9,8 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['select'])
+
 const searchQuery = ref('')
 const sortBy = ref('ttm_yield')
 const sortOrder = ref('desc')
@@ -64,6 +66,10 @@ const toggleSort = (key) => {
 }
 
 const getYieldClassValue = (value) => getYieldClass(value)
+
+const handleRowClick = (stock) => {
+  emit('select', stock)
+}
 </script>
 
 <template>
@@ -106,7 +112,8 @@ const getYieldClassValue = (value) => getYieldClass(value)
           <tr 
             v-for="(stock, index) in filteredStocks" 
             :key="stock.symbol"
-            class="hover:bg-slate-50 transition-colors"
+            class="hover:bg-slate-50 transition-colors cursor-pointer"
+            @click="handleRowClick(stock)"
           >
             <td class="px-4 py-3 text-sm text-slate-400">{{ index + 1 }}</td>
             <td class="px-4 py-3 font-mono text-sm text-slate-700">{{ stock.symbol }}</td>

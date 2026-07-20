@@ -1,10 +1,11 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { fetchIndexDetail } from '../utils/data.js'
+import { fetchIndexDetail, fetchStockDividendSummary, formatPrice } from '../utils/data.js'
 import IndexSummary from '../components/IndexSummary.vue'
 import YieldChart from '../components/YieldChart.vue'
 import StockTable from '../components/StockTable.vue'
+import IndexStockDetailModal from '../components/IndexStockDetailModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -12,6 +13,8 @@ const router = useRouter()
 const loading = ref(true)
 const error = ref(null)
 const data = ref(null)
+const dividendSummary = ref(null)
+const selectedStock = ref(null)
 
 const indexCode = computed(() => route.params.indexCode)
 const filter = computed(() => route.query.filter || 'all')
@@ -32,7 +35,12 @@ const filteredStocks = computed(() => {
 onMounted(async () => {
   try {
     const filename = `index_${indexCode.value}_dividend_yield.json`
-    data.value = await fetchIndexDetail(filename)
+    const [indexData, summaryData] = await Promise.all([
+      fetchIndexDetail(filename),
+      fetchStockDividendSummary()
+    ])
+    data.value = indexData
+    dividendSummary.value = summaryData
   } catch (e) {
     error.value = e.message
   } finally {
@@ -46,6 +54,33 @@ watch(filter, () => {
 
 const goBack = () => {
   router.push('/')
+}
+
+const getStockSummary = (symbol) => {
+  if (!dividendSummary.value?.top_dividend_stocks) return null
+  return dividendSummary.value.top_dividend_stocks.find(s => s.symbol === symbol)
+}
+
+const handleStockSelect = (stock) => {
+  const summary = getStockSummary(stock.symbol)
+  const indexInfo = data.value?.index_info || {}
+  const stocks = data.value?.stocks || []
+  const rank = stocks.findIndex(s => s.symbol === stock.symbol) + 1
+  
+  selectedStock.value = {
+    ...stock,
+    total_dividend: summary?.total_dividend || 0,
+    avg_annual: summary?.avg_annual || 0,
+    consecutive_years: summary?.consecutive_years || 0,
+    rank,
+    index_name: indexInfo.index_name || '',
+    index_code: indexInfo.index_code || '',
+    index_avg_yield: indexInfo.avg_yield || 0
+  }
+}
+
+const closeModal = () => {
+  selectedStock.value = null
 }
 </script>
 
@@ -135,7 +170,13 @@ const goBack = () => {
         </div>
       </div>
       
-      <StockTable :stocks="filteredStocks" />
+      <StockTable :stocks="filteredStocks" @select="handleStockSelect" />
     </div>
+
+    <IndexStockDetailModal 
+      v-if="selectedStock" 
+      :stock="selectedStock" 
+      @close="closeModal" 
+    />
   </div>
 </template>
